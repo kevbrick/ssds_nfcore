@@ -1,3 +1,4 @@
+#!/usr/bin/env nextflow
 /*
 ========================================================================================
     VALIDATE INPUTS
@@ -9,13 +10,20 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 // Validate input parameters
 WorkflowSsds.initialise(params, log)
 
-// TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
+def checkPathParamList = [ params.input, params.multiqc_config ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+
+// Validate arguments
+if (params.protocol == "classic"){
+    if (params.r1_trim < 36) {exit 1, "CLASSIC MODE: Read 1 trim length must be > 35bp `--r1_trim`."}
+    if (params.r1_trim > 60) {exit 1, "CLASSIC MODE: Read 1 trim length must be < 60bp `--r1_trim`. Use `--protocol current` for longer reads."}
+    if (params.r2_trim < 36) {exit 1, "CLASSIC MODE: Read 2 trim length must be > 35bp `--r2_trim`."}
+    if (params.r2_trim > 60) {exit 1, "CLASSIC MODE: Read 2 trim length must be < 60bp `--r2_trim`. Use `--protocol current` for longer reads."}
+}
 
 /*
 ========================================================================================
@@ -59,6 +67,8 @@ multiqc_options.args += params.multiqc_title ? Utils.joinModuleArgs(["--title \"
 //
 include { FASTQC  } from '../modules/nf-core/modules/fastqc/main'  addParams( options: modules['fastqc'] )
 include { MULTIQC } from '../modules/nf-core/modules/multiqc/main' addParams( options: multiqc_options   )
+include { MINIMAP2_ALIGN } from './modules/nf-core/modules/minimap2/align/main' addParams( options: [:] )
+include { TRIMGALORE } from './modules/nf-core/modules/trimgalore/main' addParams( options: [:] )
 
 /*
 ========================================================================================
