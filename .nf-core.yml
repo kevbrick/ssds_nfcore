@@ -1,0 +1,5 @@
+lint:
+  files_unchanged:
+    - .github/CONTRIBUTING.md
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - bin/scrape_software_versions.py

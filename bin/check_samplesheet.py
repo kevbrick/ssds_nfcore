@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-# TODO nf-core: Update the script to check the samplesheet
-# This script is based on the example at: https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/samplesheet/samplesheet_test_illumina_amplicon.csv
-
 import os
 import sys
 import errno
@@ -38,15 +35,13 @@ def print_error(error, context="Line", context_str=""):
     sys.exit(1)
 
 
-# TODO nf-core: Update the check_samplesheet function
 def check_samplesheet(file_in, file_out):
     """
     This function checks that the samplesheet follows the following structure:
 
-    sample,fastq_1,fastq_2,method
-    SAMPLE_A,SAMPLE_A_RUN1_1.fastq.gz,SAMPLE_A_RUN1_2.fastq.gz,DMC1
-    SAMPLE_A,SAMPLE_A_RUN2_1.fastq.gz,SAMPLE_A_RUN2_2.fastq.gz,DMC1
-    SAMPLE_B,SAMPLE_B_RUN1_1.fastq.gz,SAMPLE_B_RUN1_2.fastq.gz,IGG
+    sample,fastq_1,fastq_2
+    SAMPLE_PE,SAMPLE_PE_RUN1_1.fastq.gz,SAMPLE_PE_RUN1_2.fastq.gz
+    SAMPLE_PE,SAMPLE_PE_RUN2_1.fastq.gz,SAMPLE_PE_RUN2_2.fastq.gz
 
     For an example see:
     https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/samplesheet/samplesheet_test_illumina_amplicon.csv
@@ -56,12 +51,15 @@ def check_samplesheet(file_in, file_out):
     with open(file_in, "r") as fin:
 
         ## Check header
-        MIN_COLS = 2
-        # TODO nf-core: Update the column names for the input samplesheet
-        HEADER = ["sample", "fastq_1", "fastq_2", "method"]
+        MIN_COLS = 3
+        HEADER = ["sample", "fastq_1", "fastq_2"]
         header = [x.strip('"') for x in fin.readline().strip().split(",")]
         if header[: len(HEADER)] != HEADER:
-            print("ERROR: Please check samplesheet header -> {} != {}".format(",".join(header), ",".join(HEADER)))
+            print(
+                "ERROR: Please check samplesheet header -> {} != {}".format(
+                    ",".join(header), ",".join(HEADER)
+                )
+            )
             sys.exit(1)
 
         ## Check sample entries
@@ -78,21 +76,19 @@ def check_samplesheet(file_in, file_out):
             num_cols = len([x for x in lspl if x])
             if num_cols < MIN_COLS:
                 print_error(
-                    "Invalid number of populated columns (minimum = {})!".format(MIN_COLS),
+                    "Invalid number of populated columns (minimum = {})!".format(
+                        MIN_COLS
+                    ),
                     "Line",
                     line,
                 )
 
             ## Check sample name entries
-            sample, fastq_1, fastq_2, method = lspl[: len(HEADER)]
+            sample, fastq_1, fastq_2 = lspl[: len(HEADER)]
             sample = sample.replace(" ", "_")
             if not sample:
                 print_error("Sample entry has not been specified!", "Line", line)
 
-            method = method.replace(" ", "_")
-            if not method:
-                print_error("Method entry has not been specified!", "Line", line)
-                
             ## Check FastQ file extension
             for fastq in [fastq_1, fastq_2]:
                 if fastq:
@@ -106,15 +102,15 @@ def check_samplesheet(file_in, file_out):
                         )
 
             ## Auto-detect paired-end/single-end
-            sample_info = []  ## [fastq_1, fastq_2, method]
-            if method and sample and fastq_1 and fastq_2:  ## Paired-end short reads
-                sample_info = [fastq_1, fastq_2, method]
-            elif method and sample and fastq_1 and not fastq_2:  ## Single-end short reads
-                print_error("Paired end data required: fastq_2 not found!", "Line", line)
+            sample_info = []  ## [single_end, fastq_1, fastq_2]
+            if sample and fastq_1 and fastq_2:  ## Paired-end short reads
+                sample_info = ["0", fastq_1, fastq_2]
+            elif sample and fastq_1 and not fastq_2:  ## Single-end short reads
+                sample_info = ["1", fastq_1, fastq_2]
             else:
                 print_error("Invalid combination of columns provided!", "Line", line)
 
-            ## Create sample mapping dictionary = { sample: [ single_end, fastq_1, fastq_2, method ] }
+            ## Create sample mapping dictionary = { sample: [ single_end, fastq_1, fastq_2 ] }
             if sample not in sample_mapping_dict:
                 sample_mapping_dict[sample] = [sample_info]
             else:
@@ -128,15 +124,23 @@ def check_samplesheet(file_in, file_out):
         out_dir = os.path.dirname(file_out)
         make_dir(out_dir)
         with open(file_out, "w") as fout:
-            fout.write(",".join(["sample", "fastq_1", "fastq_2", "method"]) + "\n")
+            fout.write(",".join(["sample", "single_end", "fastq_1", "fastq_2"]) + "\n")
             for sample in sorted(sample_mapping_dict.keys()):
 
-                ### Check that multiple runs of the same sample are of the same datatype
-                #if not all(x[0] == sample_mapping_dict[sample][0][0] for x in sample_mapping_dict[sample]):
-                #    print_error("Multiple runs of a sample must be of the same datatype!", "Sample: {}".format(sample))
+                ## Check that multiple runs of the same sample are of the same datatype
+                if not all(
+                    x[0] == sample_mapping_dict[sample][0][0]
+                    for x in sample_mapping_dict[sample]
+                ):
+                    print_error(
+                        "Multiple runs of a sample must be of the same datatype!",
+                        "Sample: {}".format(sample),
+                    )
 
                 for idx, val in enumerate(sample_mapping_dict[sample]):
-                    fout.write(",".join(["{}_T{}".format(sample, idx + 1)] + val) + "\n")
+                    fout.write(
+                        ",".join(["{}_T{}".format(sample, idx + 1)] + val) + "\n"
+                    )
     else:
         print_error("No entries to process!", "Samplesheet: {}".format(file_in))
 
