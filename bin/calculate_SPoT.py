@@ -3,7 +3,9 @@ from collections import defaultdict
 from pybedtools import BedTool
 import argparse
 import os
+import re
 import sys
+import csv
 import math
 
 parser = argparse.ArgumentParser(
@@ -30,32 +32,74 @@ if args.vers == True:
     print("1.0.0")
     quit()
 
-if args.reads_bed is not None:
-    reads = BedTool(args.reads_bed)
-    intervals_bed = BedTool(args.intervals_bed).sort()
-    rand_intervals_bed = (
-        BedTool(args.intervals_bed).shuffle(g=args.g, chrom=True, seed=42).sort()
-    )
-elif args.reads_bam is not None:
-    reads = BedTool(args.reads_bam)
-    intervals_bed = BedTool(args.intervals_bed).sort(g=args.g)
-    rand_intervals_bed = (
-        BedTool(args.intervals_bed)
-        .shuffle(g=args.g, chrom=True, seed=42)
-        .sort(g=args.g)
-    )
-else:
-    sys.exit("Reads BED / BAM not provided")
-
 out_report = open(args.o + ".SSDS_SPoT_report.txt", "w")
 
-at_intervals = reads.intersect(b=intervals_bed, u=True, sorted=True)
-interval_SPoT = round(float(at_intervals.count()) / float(reads.count()), 3)
-out_report.write(args.name + "_SPoT\t" + args.iname + "\t" + str(interval_SPoT) + "\n")
 
-if args.rand:
-    at_random = reads.intersect(b=rand_intervals_bed, u=True, sorted=True)
-    random_SPoT = round(float(at_random.count()) / float(reads.count()), 3)
-    out_report.write(
-        args.name + "_SPoT\t" + args.iname + "(R)" + "\t" + str(random_SPoT) + "\n"
-    )
+def calculate_spot(bed, bam, reads_id):
+    counts = {}
+
+    ## Allow checking of lots of interval BEDs at once
+    if args.intervals_bed == "all":
+        intervals_bigbed = open("allintervals.tab", "w")
+
+        directory = r"."
+        for entry in os.listdir("."):
+            if entry.endswith(".bed"):
+                #            if entry.path.endswith(".bed") and entry.is_file():
+                id = re.sub("\.bed$", "", entry)
+                counts[id] = 0
+                if args.rand:
+                    counts[id + "(R)"] = 0
+                with open(entry) as tsv:
+                    for l in csv.reader(tsv, delimiter="\t"):
+                        intervals_bigbed.write(
+                            "\t".join([l[0], l[1], l[2], id, id, "+\n"])
+                        )
+
+        intervals_bigbed.close()
+        intervals_bed = BedTool("allintervals.tab")
+        intervals_name = "all"
+    else:
+        counts[re.sub("\.bed$", "", args.intervals_bed)] = 0
+        if args.rand:
+            counts[re.sub("\.bed$", "", args.intervals_bed) + "(R)"] = 0
+        intervals_bed = BedTool(args.intervals_bed)
+        intervals_name = args.iname
+
+    rand_intervals = intervals_bed.shuffle(g=args.g, chrom=True, seed=42)
+
+    if bed is not None:
+        reads = BedTool(bed)
+        intervals_bed = intervals_bed.sort()
+        rand_intervals_bed = rand_intervals.sort()
+    elif bam is not None:
+        reads = BedTool(bam)
+        intervals_bed = intervals_bed.sort(g=args.g)
+        rand_intervals_bed = rand_intervals.sort(g=args.g)
+    else:
+        sys.exit("Reads BED / BAM not provided")
+
+    at_intervals = intervals_bed.intersect(
+        b=reads, c=True, sorted=True, stream=True
+    ).sort()
+
+    for i in at_intervals:
+        counts[i.name] = counts[i.name] + i.count
+        at_random = rand_intervals_bed.intersect(
+            b=reads, c=True, sorted=True, stream=True
+        )
+        for i in at_random:
+            counts[i.name + "(R)"] = counts[i.name + "(R)"] + i.count
+
+    for c in counts:
+        SPoT = str(float(counts[c]) / float(reads.count()))
+        print("\t".join([c, str(counts[c]), SPoT]))
+
+        out_report.write(reads_id + "_SPoT\t" + c + "\t" + str(SPoT) + "\n")
+
+
+bams = re.sub("[\[\]\s]", "", args.reads_bam).split(",")
+names = re.sub("[\[\]\s]", "", args.name).split(",")
+
+for i in range(0, len(bams)):
+    calculate_spot(None, bams[i], names[i])

@@ -323,7 +323,7 @@ workflow SSDS {
     
     ch_ssds_bam = SORT_SSDS_BAMS.out.bam.mix(INDEX_SSDS_BAMS.out.bai).groupTuple(by:0)
         .map { [it[0], it[1][0], it[1][1]] }
-        
+    
     //
     // MODULE: Run Samtools idxstats    
     //
@@ -343,10 +343,11 @@ workflow SSDS {
     //
     // MODULE: Run Calculatespot  
     // 
-    ch_for_spot = SORT_SSDS_BAMS.out.bam.combine(ch_ssds_intervals)
-    
+    ch_for_spot = ch_ssds_bam.map { [["id":it[0].name, "single-end":it[0]."single-end"], it[1], it[2], it[1].name, it[0].type ] }
+                              .groupTuple(by:0)
+        
     CALCULATESPOT (
-        ch_for_spot, ch_genome_index
+        ch_for_spot, ch_genome_index, ch_ssds_intervals.collect()
     )
     ch_software_versions = ch_software_versions.mix(CALCULATESPOT.out.version.first().ifEmpty(null))
     
