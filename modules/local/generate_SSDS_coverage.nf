@@ -21,7 +21,7 @@ process GENERATE_SSDS_COVERAGE {
     input:
     tuple val(meta), path(bed)
     path(genome_index)
-    path(windows_bed)
+    tuple val(winmeta), path(windows_bed)
 
     // when:
     // bed.size() > 40000

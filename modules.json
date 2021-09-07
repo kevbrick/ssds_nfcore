@@ -12,6 +12,9 @@
             "bedtools/bamtobed": {
                 "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
             },
+            "bedtools/makewindows": {
+                "git_sha": "0732028e152e6ccd3b11a2f71617c746aacf04f8"
+            },
             "bedtools/sort": {
                 "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
             },

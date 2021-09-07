@@ -32,8 +32,12 @@ if (params.bwa)   {
 
 if (file(params.fasta).isFile()){ 
     ch_genome_index = file("${params.fasta}.fai", checkIfExists: true) 
+    ch_makewin_input = [ [ id:"${params.genome}"],
+                         file("${params.fasta}.fai", checkIfExists: true) ]
 }else{
     ch_genome_index = file("${params.fasta}.fai", checkIfExists: true)     
+    ch_makewin_input = [ [ id:"${params.genome}"],
+                         file("${params.fasta}.fai", checkIfExists: true) ]
 }
 
 /*
@@ -134,10 +138,9 @@ include { PICARD_MARKDUPLICATES               }     from '../modules/nf-core/mod
 include { DEEPTOOLS_PLOTFINGERPRINT           }     from '../modules/nf-core/modules/deeptools/plotfingerprint/main' addParams( options: deeptools_plotfingerprint_options )
 include { UCSC_BEDGRAPHTOBIGWIG }                   from '../modules/nf-core/modules/ucsc/bedgraphtobigwig/main'     addParams( options: ucsc_bedgraphtobigwig_options )
 include { PHANTOMPEAKQUALTOOLS }                    from '../modules/nf-core/modules/phantompeakqualtools/main'      addParams( options: phantompeakqualtools_options )
+include { BEDTOOLS_MAKEWINDOWS }                    from '../modules/nf-core/modules/bedtools/makewindows/main'      addParams( options: bedtools_makewindows_options )
 include { PARSESSDS }                               from '../modules/local/parse_ssds_bam'                           addParams( options: parse_ssds_bam_options )
 include { GENERATE_SSDS_COVERAGE }                  from '../modules/local/generate_SSDS_coverage'                   addParams( options: [publish_files:"false"] )
-include { BEDTOOLS_MAKEWINDOWS }                    from '../modules/local/bedtools_makewindows'                     addParams( options: bedtools_makewindows_options )
-//include { GET_SSDS_INTERVALS }                      from '../modules/local/get_ssds_intervals'                       addParams( options: get_ssds_intervals_options )
 include { CALCULATESPOT }                           from '../modules/local/calculatespot'                            addParams( options: calculatespot_options )
 
 /*
@@ -160,13 +163,6 @@ workflow SSDS {
         ch_input
     )
 
-    // //
-    // // MODULE: Run Get ssds intervals
-    // //
-    // GET_SSDS_INTERVALS (
-    //     ch_ssds_intervals, ch_genome_index
-    // )
-    
     //
     // MODULE: Run FastQC
     //
@@ -273,9 +269,9 @@ workflow SSDS {
 
     //
     // MODULE: Run Generate ssds coverage
-    //    
+    //
     BEDTOOLS_MAKEWINDOWS (
-        [[id:"${params.genome}"], ch_genome_index] 
+        ch_makewin_input, false 
     )
     ch_software_versions = ch_software_versions.mix(BEDTOOLS_MAKEWINDOWS.out.version.first().ifEmpty(null))
     
@@ -286,7 +282,7 @@ workflow SSDS {
                         .filter {file(it[1]).size() > 40000}
 
     GENERATE_SSDS_COVERAGE(
-        ch_ssds_beds, ch_genome_index, BEDTOOLS_MAKEWINDOWS.out.bed
+        ch_ssds_beds, ch_genome_index, BEDTOOLS_MAKEWINDOWS.out.tab
     )
     ch_software_versions = ch_software_versions.mix(SORT_SSDS_BEDS.out.version.first().ifEmpty(null))
 
@@ -335,10 +331,10 @@ workflow SSDS {
     //
     // MODULE: Run Phantompeakqualtools  
     //    
-    PHANTOMPEAKQUALTOOLS (
-        SORT_SSDS_BAMS.out.bam
-    )
-    ch_software_versions = ch_software_versions.mix(PHANTOMPEAKQUALTOOLS.out.version.first().ifEmpty(null))
+    // PHANTOMPEAKQUALTOOLS (
+    //     SORT_SSDS_BAMS.out.bam
+    // )
+    // ch_software_versions = ch_software_versions.mix(PHANTOMPEAKQUALTOOLS.out.version.first().ifEmpty(null))
     
     //
     // MODULE: Run Calculatespot  
@@ -363,8 +359,18 @@ workflow SSDS {
     
     // PLOTFINGERPRINT FAILS IF TOO FEW GENOMIC WINDOWS CONTAIN READS. THUS, WE ONLY RUN THIS 
     // FOR BAMS THAT ARE AT LEAST 75% THE SIZE OF THE GENOME FASTA (A BIT ARBITRARY)
+    // DEEPTOOLS_PLOTFINGERPRINT (
+    //     ch_ssds_bam.filter {file(it[1]).size() > file(params.fasta).size()*0.75}
+    // )
+    ch_fingerprint_bams = ch_ssds_bam.map { [["id":it[0].name, "single-end":it[0]."single-end"], it[1], it[2]] }
+                                     .groupTuple(by:0)
+                                     .view()
+    
+    //SORT_SSDS_BAMS.out.bam.mix(INDEX_SSDS_BAMS.out.bai).view()
+    //ch_fingerprint_bams.view()
+    
     DEEPTOOLS_PLOTFINGERPRINT (
-        ch_ssds_bam.filter {file(it[1]).size() > file(params.fasta).size()*0.75}
+        ch_fingerprint_bams
     )
     ch_software_versions = ch_software_versions.mix(DEEPTOOLS_PLOTFINGERPRINT.out.version.first().ifEmpty(null))
     
@@ -401,9 +407,9 @@ workflow SSDS {
     ch_multiqc_files = ch_multiqc_files.mix(ch_spot_report.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(DEEPTOOLS_PLOTFINGERPRINT.out.metrics.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(DEEPTOOLS_PLOTFINGERPRINT.out.matrix.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(PHANTOMPEAKQUALTOOLS.out.spp.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(PHANTOMPEAKQUALTOOLS.out.pdf.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(PHANTOMPEAKQUALTOOLS.out.rdata.collect{it[1]}.ifEmpty([]))
+    //ch_multiqc_files = ch_multiqc_files.mix(PHANTOMPEAKQUALTOOLS.out.spp.collect{it[1]}.ifEmpty([]))
+    //ch_multiqc_files = ch_multiqc_files.mix(PHANTOMPEAKQUALTOOLS.out.pdf.collect{it[1]}.ifEmpty([]))
+    //ch_multiqc_files = ch_multiqc_files.mix(PHANTOMPEAKQUALTOOLS.out.rdata.collect{it[1]}.ifEmpty([]))
     MULTIQC (
         ch_multiqc_files.collect()
     )
