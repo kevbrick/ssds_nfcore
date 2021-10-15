@@ -85,17 +85,25 @@ def calculate_spot(bed, bam, reads_id):
 
     for i in at_intervals:
         counts[i.name] = counts[i.name] + i.count
-        at_random = rand_intervals_bed.intersect(
-            b=reads, c=True, sorted=True, stream=True
-        )
-        for i in at_random:
-            counts[i.name + "(R)"] = counts[i.name + "(R)"] + i.count
+
+    at_random = rand_intervals_bed.intersect(b=reads, c=True, sorted=True, stream=True)
+
+    for i in at_random:
+        counts[i.name + "(R)"] = counts[i.name + "(R)"] + i.count
+
+    num_reads = float(reads.count())
 
     for c in counts:
-        SPoT = str(float(counts[c]) / float(reads.count()))
-        print("\t".join([c, str(counts[c]), SPoT]))
+        if counts[c] > 0:
+            SPoT = str(float(counts[c]) / num_reads)
+        else:
+            SPoT = 0
 
-        out_report.write(reads_id + "_SPoT\t" + c + "\t" + str(SPoT) + "\n")
+        report_line = "\t".join([reads_id + "_SPoT", c, str(SPoT)])
+
+        print(report_line)
+
+        out_report.write(report_line + "\n")
 
 
 bams = re.sub("[\[\]\s]", "", args.reads_bam).split(",")

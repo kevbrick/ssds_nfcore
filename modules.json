@@ -33,6 +33,9 @@
             "phantompeakqualtools": {
                 "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
             },
+            "picard/collectmultiplemetrics": {
+                "git_sha": "906577873b66253b0d244871bfec2eeeaff73053"
+            },
             "picard/markduplicates": {
                 "git_sha": "c5235a983d454787fa0c3247b02086969217163b"
             },

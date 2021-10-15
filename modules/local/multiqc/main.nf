@@ -12,9 +12,9 @@ process MULTIQC {
 
     conda (params.enable_conda ? "bioconda::multiqc=1.10.1" : null)
     if (workflow.containerEngine == 'singularity' && !params.singularity_pull_docker_container) {
-        container "docker://kevbrick/multiqc_ssds:2.0"
+        container "docker://kevbrick/multiqc_ssds:2.2"
     } else {
-        container "kevbrick/multiqc_ssds:2.0"
+        container "kevbrick/multiqc_ssds:2.2"
     }
 
     input:

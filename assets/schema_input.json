@@ -33,7 +33,8 @@
         },
         "required": [
             "sample",
-            "fastq_1"
+            "fastq_1",
+            "fastq_2"
         ]
     }
 }
