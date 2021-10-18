@@ -44,21 +44,21 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 * `bam/`
     * `<sample>.ssDNA.bam`: a BAM file containing reads derived from single-stranded DNA.
-    * `<sample>.ssDNA_type2.bam`: a BAM file containing reads derived from lower-confidence (type-2) single-stranded DNA. These reads are low confidence because they may also be derived from dsDNA.
-    * `<sample>.dsDNA_hiconf.bam`: a BAM file containing reads derived from higher confidence double-stranded DNA. Nonetheless, these reads may also be derived from ssDNA. 
-    * `<sample>.dsDNA_loconf.bam`: a BAM file containing reads derived from lower confidence double-stranded DNA. The structure used to infer These reads may also be derived from ssDNA. 
+    * `<sample>.ssLow.bam`: a BAM file containing reads derived from lower-confidence single-stranded DNA. These reads are low confidence because the fill-in (indicative of ssDNA) is short (<= 3bp).
+		* `<sample>.type2.bam`: a BAM file containing reads that may be derived from single-stranded or double-stranded DNA. In an ssDNA-enriched library, these reads are likely derived from ssDNA.
+    * `<sample>.dsDNA.bam`: a BAM file containing reads derived from likely double-stranded DNA. Importantly, these reads may also be derived from ssDNA. Particular caution should be exercised for an ssDNA-enriched library.
     * `<sample>.unclassified.bam`: a BAM file containing unclassified reads. 
     * `<sample>.ssDNA.bam.bai`: index for a BAM file containing reads derived from single-stranded DNA.
-    * `<sample>.ssDNA_type2.bam.bai`: index for a BAM file containing reads derived from lower-confidence (type-2) single-stranded DNA. These reads are low confidence because they may also be derived from dsDNA.
-    * `<sample>.dsDNA_hiconf.bam.bai`: index for a BAM file containing reads derived from higher confidence double-stranded DNA. Nonetheless, these reads may also be derived from ssDNA. 
-    * `<sample>.dsDNA_loconf.bam.bai`: index for a BAM file containing reads derived from lower confidence double-stranded DNA. The structure used to infer These reads may also be derived from ssDNA. 
+    * `<sample>.ssDNA_type2.bam.bai`: index for a BAM file containing reads derived from lower-confidence single-stranded DNA. These reads are low confidence because the fill-in (indicative of ssDNA) is short (<= 3bp).
+		* `<sample>.ssDNA_type2.bam.bai`: index for a BAM file containing reads that may be derived from single-stranded or double-stranded DNA. In an ssDNA-enriched library, these reads are likely derived from ssDNA.
+    * `<sample>.dsDNA.bam.bai`: index for a BAM file containing reads derived from likely double-stranded DNA. Importantly, these reads may also be derived from ssDNA. Particular caution should be exercised for an ssDNA-enriched library. 
     * `<sample>.unclassified.bam.bai`: index for a BAM file containing unclassified reads. 
     
 * `bed/`
     * `<sample>.ssDNA.bed`: a BED file containing fragments derived from single-stranded DNA.
-    * `<sample>.ssDNA_type2.bed`: a BED file containing fragments derived from lower-confidence (type-2) single-stranded DNA. These reads are low confidence because they may also be derived from dsDNA.
-    * `<sample>.dsDNA_hiconf.bed`: a BED file containing fragments derived from higher confidence double-stranded DNA. Nonetheless, these reads may also be derived from ssDNA. 
-    * `<sample>.dsDNA_loconf.bed`: a BED file containing fragments derived from lower confidence double-stranded DNA. The structure used to infer These reads may also be derived from ssDNA. 
+		* `<sample>.ssLow.bed`: a BED file containing reads derived from lower-confidence single-stranded DNA. These reads are low confidence because the fill-in (indicative of ssDNA) is short (<= 3bp).
+		* `<sample>.type2.bed`: a BED file containing reads that may be derived from single-stranded or double-stranded DNA. In an ssDNA-enriched library, these reads are likely derived from ssDNA.
+    * `<sample>.dsDNA.bed`: a BED file containing reads derived from likely double-stranded DNA. Importantly, these reads may also be derived from ssDNA. Particular caution should be exercised for an ssDNA-enriched library.
     * `<sample>.unclassified.bed`: a BED file containing unclassified fragments. 
 
 </details>

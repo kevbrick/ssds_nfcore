@@ -48,17 +48,17 @@ workflow ALIGN_SS {
     PARSESSDS(PICARD_SORTSAM_QRY.out.bam)
                                            
     ch_ssds_bam_unsorted = PARSESSDS.out.bam.collect{it[1]}.flatten().map {
-                                                 def id   = it.name.replaceFirst('^(.+)_(ssDNA|ssDNA_type2|dsDNA_loconf|dsDNA_hiconf|unclassified)\\..+$','$1.$2')
-                                                 def name = it.name.replaceFirst('^(.+)_(ssDNA|ssDNA_type2|dsDNA_loconf|dsDNA_hiconf|unclassified)\\..+$','$1')
-                                                 def type = it.name.replaceFirst('^(.+)_(ssDNA|ssDNA_type2|dsDNA_loconf|dsDNA_hiconf|unclassified)\\..+$','$2')
+                                                 def id   = it.name.replaceFirst('^(.+)_(ssDNA|ssLow|type2|dsDNA|unclassified)\\..+$','$1.$2')
+                                                 def name = it.name.replaceFirst('^(.+)_(ssDNA|ssLow|type2|dsDNA|unclassified)\\..+$','$1')
+                                                 def type = it.name.replaceFirst('^(.+)_(ssDNA|ssLow|type2|dsDNA|unclassified)\\..+$','$2')
                                                  def meta = [id:"${id}", name:"${name}", type:"${type}", "single-end":"false"];
                                                  return [meta, it]}
                                             .groupTuple()
                                 
     ch_ssds_bed_unsorted = PARSESSDS.out.bed.collect{it[1]}.flatten().map {
-                                                 def id   = it.name.replaceFirst('^(.+)_(ssDNA|ssDNA_type2|dsDNA_loconf|dsDNA_hiconf|unclassified)\\..+$','$1.$2')
-                                                 def name = it.name.replaceFirst('^(.+)_(ssDNA|ssDNA_type2|dsDNA_loconf|dsDNA_hiconf|unclassified)\\..+$','$1')
-                                                 def type = it.name.replaceFirst('^(.+)_(ssDNA|ssDNA_type2|dsDNA_loconf|dsDNA_hiconf|unclassified)\\..+$','$2')
+                                                 def id   = it.name.replaceFirst('^(.+)_(ssDNA|ssLow|type2|dsDNA|unclassified)\\..+$','$1.$2')
+                                                 def name = it.name.replaceFirst('^(.+)_(ssDNA|ssLow|type2|dsDNA|unclassified)\\..+$','$1')
+                                                 def type = it.name.replaceFirst('^(.+)_(ssDNA|ssLow|type2|dsDNA|unclassified)\\..+$','$2')
                                                  def meta = [id:"${id}", name:"${name}", type:"${type}", "single-end":"false"];
                                                  return [meta, it]}
                                            .groupTuple()
