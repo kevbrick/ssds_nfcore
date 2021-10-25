@@ -220,7 +220,7 @@ for read in samfile:
             map = read2.get_reference_positions(full_length=True)
             fragment_strand = "-"
             fragment_start = read2.reference_start
-            fragment_end = read1.reference_start + read1.infer_read_length()
+            fragment_end = read1.reference_start + read1.reference_length
         else:
             if args.v:
                 print("R1 fwd")
@@ -229,7 +229,7 @@ for read in samfile:
             map = read2.get_reference_positions(full_length=True)[::-1]
             fragment_strand = "+"
             fragment_start = read1.reference_start
-            fragment_end = read2.reference_start + read2.infer_read_length()
+            fragment_end = read2.reference_start + read2.reference_length
 
         fragment_q = str(read1.mapping_quality) + "_" + str(read2.mapping_quality)
         fragment_length = fragment_end - fragment_start
