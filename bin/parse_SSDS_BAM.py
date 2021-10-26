@@ -219,8 +219,8 @@ for read in samfile:
             seq2 = read2.query_sequence
             map = read2.get_reference_positions(full_length=True)
             fragment_strand = "-"
-            fragment_start = read2.reference_start
-            fragment_end = read1.reference_start + read1.reference_length
+            fragment_start = read2.reference_start + read2.reference_length
+            fragment_end = read1.reference_start 
         else:
             if args.v:
                 print("R1 fwd")
