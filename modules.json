@@ -3,59 +3,50 @@
     "homePage": "https://github.com/nf-core/ssds",
     "repos": {
         "nf-core/modules": {
-            "adapterremoval": {
-                "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
-            },
-            "allelecounter": {
-                "git_sha": "c5235a983d454787fa0c3247b02086969217163b"
-            },
             "bedtools/bamtobed": {
-                "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "bedtools/makewindows": {
-                "git_sha": "0732028e152e6ccd3b11a2f71617c746aacf04f8"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "bedtools/sort": {
-                "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "bwa/index": {
-                "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "bwa/mem": {
-                "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "deeptools/plotfingerprint": {
-                "git_sha": "c5235a983d454787fa0c3247b02086969217163b"
+                "git_sha": "49da8642876ae4d91128168cd0db4f1c858d7792"
             },
             "fastqc": {
-                "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
-            },
-            "phantompeakqualtools": {
-                "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "picard/collectmultiplemetrics": {
-                "git_sha": "906577873b66253b0d244871bfec2eeeaff73053"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "picard/markduplicates": {
-                "git_sha": "c5235a983d454787fa0c3247b02086969217163b"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "picard/sortsam": {
-                "git_sha": "c5235a983d454787fa0c3247b02086969217163b"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "samtools/idxstats": {
-                "git_sha": "c5235a983d454787fa0c3247b02086969217163b"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "samtools/index": {
-                "git_sha": "c5235a983d454787fa0c3247b02086969217163b"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "samtools/view": {
-                "git_sha": "c5235a983d454787fa0c3247b02086969217163b"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "trimgalore": {
-                "git_sha": "c5235a983d454787fa0c3247b02086969217163b"
+                "git_sha": "3aacd46da2b221ed47aaa05c413a828538d2c2ae"
             },
             "ucsc/bedgraphtobigwig": {
-                "git_sha": "e937c7950af70930d1f34bb961403d9d2aa81c7d"
+                "git_sha": "49da8642876ae4d91128168cd0db4f1c858d7792"
             }
         }
     }
