@@ -78,10 +78,10 @@ include { GET_SOFTWARE_VERSIONS } from '../modules/local/get_software_versions' 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK }              from '../subworkflows/local/input_check'                  addParams( options: [:] )
-include { SORT_AND_INDEX_BAM }       from '../subworkflows/local/sort_and_index_bam'           addParams( options: [:] )
-include { MAKE_SSDS_BIGWIGS }        from '../subworkflows/local/make_ssds_bigwigs'            addParams( options: [:] )
-include { ALIGN_SS }                 from '../subworkflows/local/align_ss'                     addParams( options: [:] )
+include { INPUT_CHECK }           from '../subworkflows/local/input_check'                  addParams( options: [:] )
+include { SORT_AND_INDEX_BAM }    from '../subworkflows/local/sort_and_index_bam'           addParams( options: [:] )
+include { MAKE_SSDS_BIGWIGS }     from '../subworkflows/local/make_ssds_bigwigs'            addParams( options: [:] )
+include { ALIGN_SS }              from '../subworkflows/local/align_ss'                     addParams( options: [:] )
 
 /*
 ========================================================================================
@@ -103,12 +103,12 @@ get_ssds_intervals_options                  += [genome: ssds_intervals_genome]
 def multiqc_options                          = modules['multiqc']
 multiqc_options.args                        += params.multiqc_title ? Utils.joinModuleArgs(["--title \"$params.multiqc_title\""]) : ''
 
-include { FASTQC}                                   from '../modules/nf-core/modules/fastqc/main'                        addParams( options: fastqc_options )
-include { BWA_INDEX }                               from '../modules/nf-core/modules/bwa/index/main'                     addParams( options: bwa_index_options )
-include { DEEPTOOLS_PLOTFINGERPRINT           }     from '../modules/nf-core/modules/deeptools/plotfingerprint/main'     addParams( options: deeptools_plotfingerprint_options )
-include { BEDTOOLS_MAKEWINDOWS }                    from '../modules/nf-core/modules/bedtools/makewindows/main'          addParams( options: bedtools_makewindows_options )
-include { CALCULATESPOT }                           from '../modules/local/calculatespot'                                addParams( options: calculatespot_options )
-include { MULTIQC}                                  from '../modules/local/multiqc/main'                                 addParams( options: multiqc_options )
+include { FASTQC}                    from '../modules/nf-core/modules/fastqc/main'                        addParams( options: fastqc_options )
+include { BWA_INDEX }                from '../modules/nf-core/modules/bwa/index/main'                     addParams( options: bwa_index_options )
+include { DEEPTOOLS_PLOTFINGERPRINT} from '../modules/nf-core/modules/deeptools/plotfingerprint/main'     addParams( options: deeptools_plotfingerprint_options )
+include { BEDTOOLS_MAKEWINDOWS }     from '../modules/nf-core/modules/bedtools/makewindows/main'          addParams( options: bedtools_makewindows_options )
+include { CALCULATESPOT }            from '../modules/local/calculatespot'                                addParams( options: calculatespot_options )
+include { MULTIQC}                   from '../modules/local/multiqc/main'                                 addParams( options: multiqc_options )
 /*
 ========================================================================================
     RUN MAIN WORKFLOW
@@ -135,7 +135,7 @@ workflow SSDS {
     FASTQC (
         INPUT_CHECK.out.reads
     )
-    ch_software_versions = ch_software_versions.mix(FASTQC.out.version.first().ifEmpty(null))
+    ch_software_versions = ch_software_versions.mix(FASTQC.out.versions.first().ifEmpty(null))
 
     //
     // MODULE/SUBWORKFLOW: Index genome if required, then run SSDS alignment sub-workflow    
@@ -193,7 +193,7 @@ workflow SSDS {
     DEEPTOOLS_PLOTFINGERPRINT (
         ch_fingerprint_bams
     )
-    ch_software_versions = ch_software_versions.mix(DEEPTOOLS_PLOTFINGERPRINT.out.version.first().ifEmpty(null))
+    ch_software_versions = ch_software_versions.mix(DEEPTOOLS_PLOTFINGERPRINT.out.versions.first().ifEmpty(null))
     
     //
     // MODULE: Pipeline reporting

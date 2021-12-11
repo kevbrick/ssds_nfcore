@@ -29,7 +29,7 @@ workflow MARKDUPLICATES_AND_INDEX {
     bai              = SAMTOOLS_INDEX.out.bai                     // channel: [ val(meta), [ bai ] ]
     mdmetrics        = PICARD_MARKDUPLICATES.out.metrics          // channel: [ val(meta), [ bam ] ]
     
-    version          = PICARD_MARKDUPLICATES.out.version          // path: *.version.txt
-    picard_version   = PICARD_MARKDUPLICATES.out.version          // path: *.version.
-    samtools_version = SAMTOOLS_INDEX.out.version                 // path: *.version.
+    version          = PICARD_MARKDUPLICATES.out.versions          // path: *.version.txt
+    picard_version   = PICARD_MARKDUPLICATES.out.versions          // path: *.version.
+    samtools_version = SAMTOOLS_INDEX.out.versions                 // path: *.version.
 }

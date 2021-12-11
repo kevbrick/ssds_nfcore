@@ -29,5 +29,5 @@ workflow MAKE_SSDS_BIGWIGS {
     bigwig   = UCSC_BEDGRAPHTOBIGWIG.out.bigwig    // channel: [ val(meta), [ bai ] ]
 
     version   = GENERATE_SSDS_COVERAGE.out.version //    path: *.version.txt
-    version2  = UCSC_BEDGRAPHTOBIGWIG.out.version  //    path: *.version.txt
+    version2  = UCSC_BEDGRAPHTOBIGWIG.out.versions  //    path: *.version.txt
 }

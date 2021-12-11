@@ -36,8 +36,8 @@ workflow ALIGN_SS {
     main:
     
     TRIMGALORE (fastq)
-    BWA_MEM (TRIMGALORE.out.reads, bwa)
-    FILTER_SUPP_ALIGNMENTS (BWA_MEM.out.bam)
+    BWA_MEM (TRIMGALORE.out.reads, bwa, false)
+    FILTER_SUPP_ALIGNMENTS (BWA_MEM.out.bam, fasta)
     
     ch_unprocessed = FILTER_SUPP_ALIGNMENTS.out.bam.map {return [[id:"${it[0].id}.unprocessed_SSDS", single_end: it[0].single_end], it[1]]}
     MD_AND_INDEX_RAW(ch_unprocessed, fasta)
@@ -63,7 +63,7 @@ workflow ALIGN_SS {
                                                  return [meta, it]}
                                            .groupTuple()
 
-    BEDTOOLS_SORT(ch_ssds_bed_unsorted)
+    BEDTOOLS_SORT(ch_ssds_bed_unsorted, 'bed')
     
     MD_AND_INDEX (ch_ssds_bam_unsorted, fasta)
     
@@ -79,14 +79,14 @@ workflow ALIGN_SS {
                  .mix(PARSESSDS.out.report)
     
     emit:
-    bam     = ch_ssds_bam             // channel: [ val(meta), [ bam ] ]
-    bed     = BEDTOOLS_SORT.out.bed   // channel: [ val(meta), [ bai ] ]
+    bam     = ch_ssds_bam                // channel: [ val(meta), [ bam ] ]
+    bed     = BEDTOOLS_SORT.out.sorted   // channel: [ val(meta), [ bai ] ]
     reports = ch_reports
     
-    version           = TRIMGALORE.out.version           //    path: *.version.txt
-    bwa_version       = BWA_MEM.out.version              //    path: *.version.txt
+    version           = TRIMGALORE.out.versions           //    path: *.version.txt
+    bwa_version       = BWA_MEM.out.versions              //    path: *.version.txt
     samtools_version  = SAMTOOLS_IDXSTATS.out.version    //    path: *.version.txt
     picard_version    = MD_AND_INDEX.out.picard_version  //    path: *.version.txt
-    bedtools_version  = BEDTOOLS_SORT.out.version        //    path: *.version.txt
+    bedtools_version  = BEDTOOLS_SORT.out.versions        //    path: *.version.txt
     parsessds_version = PARSESSDS.out.version            //    path: *.version.txt
 }
