@@ -23,7 +23,7 @@ process BWA_MEM {
     def read_group = meta.read_group ? "-R ${meta.read_group}" : ""
     def samtools_command = sort_bam ? 'sort' : 'view'
     """
-    INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
+    INDEX=`find -L ./ -maxdepth 1 -name "*.amb" | sed 's/.amb//'`
 
     bwa mem \\
         $args \\
